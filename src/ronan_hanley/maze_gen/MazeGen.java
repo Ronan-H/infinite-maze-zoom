@@ -51,7 +51,7 @@ public class MazeGen {
 	}
 	
 	public static void main(String[] args) {
-		new MazeGen(101, 101, 1).go();
+		new MazeGen(101, 101, 10).go();
 	}
 	
 	public void genMaze(int[][] grid, int x, int y) throws InterruptedException {
