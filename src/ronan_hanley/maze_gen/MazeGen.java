@@ -8,22 +8,25 @@ import java.util.Random;
 import javax.swing.JFrame;
 
 public class MazeGen {
+	private int width, height;
 	public int x, y;
 	private int sleepTime;
 	public int[][] grid;
 	// 0 = Blank, 1 = WALL, 2 = START, 3 = FINISH
 	public static final int BLANK = 0, WALL = 1, START = 2, FINISH = 3;
+	// (x, y) pairs of directional offset values
+	private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 	private Random rand = new Random();
 	private Panel panel;
 	
-	public MazeGen(int x, int y, int sleepTime) {
-		this.x = x;
-		this.y = y;
+	public MazeGen(int width, int height, int sleepTime) {
+		this.width = width;
+		this.height = height;
 		this.sleepTime = sleepTime;
 
-		grid = new int[y][x];
-		for(int i = 0; i < grid.length; i++) {
-			for(int j = 0; j < grid[i].length; j++) {
+		grid = new int[height][width];
+		for(int i = 0; i < height; i++) {
+			for(int j = 0; j < width; j++) {
 				grid[i][j] = WALL;
 			}
 		}
@@ -57,56 +60,43 @@ public class MazeGen {
 	public void genMaze(int[][] grid, int x, int y) throws InterruptedException {
 		grid[y][x] = BLANK;
 
+		// indexes of directional offsets
 		ArrayList<Integer> dirs = new ArrayList<>();
 		for (int i = 0; i < 4; i++) {
 			dirs.add(i);
 		}
 
 		int nextDir;
+		int xOff, yOff;
+		int adjX, adjY;
+		int destX, destY;
 
+		// for each direction (up, down, left, right)...
 		for (int i = 0; i < 4; i++) {
 			nextDir = dirs.remove(rand.nextInt(dirs.size()));
-			switch (nextDir) {
-			case 0:
-				// left
-				if(x - 2 > 0 && grid[y][x - 2] != BLANK) {
-					grid[y][x - 1] = BLANK;
-					grid[y][x - 2] = BLANK;
-					Thread.sleep(sleepTime);
-					panel.repaint();
-					genMaze(grid, x - 2, y);
-				}
-				break;
-			case 1:
-				// right
-				if(x + 2 < grid[0].length && grid[y][x + 2] != BLANK) {
-					grid[y][x + 1] = BLANK;
-					grid[y][x + 2] = BLANK;
-					Thread.sleep(sleepTime);
-					panel.repaint();
-					genMaze(grid, x + 2, y);
-				}
-				break;
-			case 2:
-				// up
-				if(y - 2 > 0 && grid[y - 2][x] != BLANK) {
-					grid[y - 1][x] = BLANK;
-					grid[y - 2][x] = BLANK;
-					Thread.sleep(sleepTime);
-					panel.repaint();
-					genMaze(grid, x, y -2);
-				}
-				break;
-			case 3:
-				// down
-				if(y + 2 < grid.length && grid[y +2][x] != BLANK) {
-					grid[y + 1][x] = BLANK;
-					grid[y + 2][x] = BLANK;
-					Thread.sleep(sleepTime);
-					panel.repaint();
-					genMaze(grid, x, y + 2);
-				}
-				break;
+			// direction normal
+			xOff = DIR_OFFSETS[nextDir][0];
+			yOff = DIR_OFFSETS[nextDir][1];
+			// location of adjacent cell along the chosen direction
+			adjX = x + xOff;
+			adjY = y + yOff;
+			// location of destination cell along the chosen direction
+			destX = x + xOff * 2;
+			destY = y + yOff * 2;
+
+			// check destination is in bounds and not yet visited
+			if (destX > 0 && destX < width
+					&& destY > 0 && destY < height
+					&& grid[destY][destX] != BLANK) {
+				// carve out space on the maze
+				grid[adjY][adjX] = BLANK;
+				grid[destY][destX] = BLANK;
+
+				Thread.sleep(sleepTime);
+				panel.repaint();
+
+				// recursive call to continue generating the maze from the destination cell
+				genMaze(grid, destX, destY);
 			}
 		}
 	}
