@@ -8,7 +8,6 @@ import javax.swing.JPanel;
 public class Panel extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int[][] grid;
-	private BufferedImage gridImage;
 	private static final int SCALE = 7;
 	
 	public Panel(int[][] grid) {
