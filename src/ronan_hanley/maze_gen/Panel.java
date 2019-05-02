@@ -7,19 +7,28 @@ import java.awt.image.BufferedImage;
 import javax.swing.JPanel;
 
 public class Panel extends JPanel {
-	private static final long serialVersionUID = -6708754726478345475L;
-	private byte[][] grid;
+	private static final long serialVersionUID = 1L;
+	private int[][] grid;
 	private BufferedImage gridImage;
 	private static final int SCALE = 7;
 	
-	public Panel(byte[][] g) {
-		grid = g;
-		setPreferredSize(new Dimension(g[0].length * SCALE, g.length * SCALE));
-		setMaximumSize(new Dimension(g[0].length * SCALE, g.length * SCALE));
-		setMinimumSize(new Dimension(g[0].length * SCALE, g.length * SCALE));
-		gridImage = new BufferedImage(grid[0].length, grid.length, BufferedImage.TYPE_INT_RGB);
-		for(int y=0; y<grid.length; y++) {
-			for(int x=0; x<grid[y].length; x++) {
+	public Panel(int[][] grid) {
+		this.grid = grid;
+
+		int gridWidth = grid[0].length;
+		int gridHeight = grid.length;
+
+		int windowWidth = gridWidth * SCALE;
+		int windowHeight = gridHeight * SCALE;
+
+		Dimension size = new Dimension(windowWidth, windowHeight);
+		setMinimumSize(size);
+		setMaximumSize(size);
+		setPreferredSize(size);
+
+		gridImage = new BufferedImage(gridWidth, gridHeight, BufferedImage.TYPE_INT_RGB);
+		for(int y = 0; y < grid.length; y++) {
+			for(int x = 0; x < grid[y].length; x++) {
 				gridImage.setRGB(x, y, 0x000000);
 			}
 		}
@@ -30,15 +39,11 @@ public class Panel extends JPanel {
 		for(int y=0; y<grid.length; y++) {
 			for(int x=0; x<grid[y].length; x++) {
 				switch(grid[y][x]) {
-				case 0:
+				case MazeGen.BLANK:
 					gridImage.setRGB(x, y, 0xFFFFFF);
 					break;
-				case 1:
+				case MazeGen.WALL:
 					gridImage.setRGB(x, y, 0x000000);
-					break;
-				case 2:
-					break;
-				case 3:
 					break;
 				}
 			}
