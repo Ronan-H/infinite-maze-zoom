@@ -39,18 +39,12 @@ public class MazeGen {
 	}
 
 	public void genMaze() throws InterruptedException {
-		while (!maze.isFinishedGenerating()) {
-			boolean madeVisualProgress = maze.generateStep();
+		while (true) {
+			while (!maze.generateStep() && !maze.isFinishedGenerating());
 
-			if (madeVisualProgress) {
-				updateAndPause();
-			}
+			Thread.sleep(sleepTime);
+			panel.repaint();
 		}
-	}
-
-	private void updateAndPause() throws InterruptedException {
-		panel.repaint();
-		Thread.sleep(sleepTime);
 	}
 
 	public static void main(String[] args) {
