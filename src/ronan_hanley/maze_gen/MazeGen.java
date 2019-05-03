@@ -5,24 +5,21 @@ import java.awt.Dimension;
 import javax.swing.JFrame;
 
 public class MazeGen {
-	private int width, height;
 	private long nsPerUpdate;
-	private Maze maze;
+	private Maze topMaze;
 	private Panel panel;
 	private long nextUpdate;
 	
 	public MazeGen(int width, int height, long nsPerUpdate) {
-		this.width = width;
-		this.height = height;
 		this.nsPerUpdate = nsPerUpdate;
 
-		maze = new Maze(width, height, 1, 1);
+		topMaze = new Maze(width, height, 1, 1, 3);
 	}
 	
 	public void go() {
 		JFrame frame = new JFrame("Maze Generator by Ronan-H");
 
-		panel = new Panel(maze);
+		panel = new Panel(topMaze);
 		frame.getContentPane().setSize(new Dimension(panel.getWidth(), panel.getHeight()));
 		frame.add(panel);
 		frame.pack();
@@ -44,7 +41,12 @@ public class MazeGen {
 
 	public void genMaze() throws InterruptedException {
 		while (true) {
-			while (!maze.generateStep() && !maze.isFinishedGenerating());
+			for (int i = 0; i < 20; i++) {
+				topMaze.generateStep();
+				if (topMaze.isFinishedGenerating()) {
+					break;
+				}
+			}
 
 			repaintAndSleep();
 		}
@@ -53,7 +55,7 @@ public class MazeGen {
 	private long lastTimer = System.currentTimeMillis();
 	private int fps = 0;
 	public void repaintAndSleep() throws InterruptedException {
-		panel.repaint();
+		panel.paintImmediately(0, 0, panel.getWindowWidth(), panel.getWindowHeight());
 
 		long sleepNs = nextUpdate - System.nanoTime();
 
@@ -64,14 +66,14 @@ public class MazeGen {
 		nextUpdate += nsPerUpdate;
 		fps++;
 		if (System.currentTimeMillis() > lastTimer + 1000) {
-			System.out.printf("%dfps%n", fps);
+			System.out.printf("%-5dfps%n", fps);
 			lastTimer += 1000;
 			fps = 0;
 		}
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(73, 73, 10 * 1000000).go();
+		new MazeGen(73, 73, 50 * 1000000).go();
 	}
 
 }

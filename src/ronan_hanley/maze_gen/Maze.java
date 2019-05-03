@@ -11,11 +11,12 @@ public class Maze {
 
     private int width;
     private int height;
-    public boolean[][] grid;
+    private boolean[][] grid;
     private Deque<int[]> genStack = new ArrayDeque<>();
     private Random random;
+    private Maze subMaze;
 
-    public Maze(int width, int height, int genStartX, int genStartY) {
+    public Maze(int width, int height, int genStartX, int genStartY, int numSubMazes) {
         this.width = width;
         this.height = height;
 
@@ -23,6 +24,10 @@ public class Maze {
 
         genStack.push(new int[] {genStartX, genStartY, genStartX, genStartY});
         random = new Random();
+
+        if (numSubMazes > 0) {
+            subMaze = new Maze(width, height, genStartX, genStartY, numSubMazes - 1);
+        }
     }
 
     public int getWidth() {
@@ -33,6 +38,10 @@ public class Maze {
         return height;
     }
 
+    public Maze getSubMaze() {
+        return subMaze;
+    }
+
     public boolean isPathAt(int x, int y) {
         return grid[y][x];
     }
@@ -41,8 +50,14 @@ public class Maze {
      * @return True if more of the maze was carved out (sometimes it only backtracks in a single step)
      */
     public boolean generateStep() {
+        boolean subMazeCarved = false;
+
+        if (subMaze != null) {
+            subMazeCarved = subMaze.generateStep();
+        }
+
         if (genStack.isEmpty()) {
-            return false;
+            return subMazeCarved;
         }
 
         int[] top;
@@ -58,7 +73,7 @@ public class Maze {
 
         if (isPathAt(x, y)) {
             // already visited
-            return false;
+            return subMazeCarved;
         }
 
         // carve out space on the maze
