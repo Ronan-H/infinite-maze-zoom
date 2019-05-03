@@ -7,10 +7,10 @@ import javax.swing.JPanel;
 
 public class Panel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private int[][] grid;
+	private boolean[][] grid;
 	private static final int SCALE = 7;
 	
-	public Panel(int[][] grid) {
+	public Panel(boolean[][] grid) {
 		this.grid = grid;
 
 		int gridWidth = grid[0].length;
@@ -30,15 +30,7 @@ public class Panel extends JPanel {
 
 		for(int y = 0; y < grid.length; y++) {
 			for(int x = 0; x < grid[y].length; x++) {
-				switch(grid[y][x]) {
-					case MazeGen.BLANK:
-						g.setColor(Color.WHITE);
-						break;
-					case MazeGen.WALL:
-						g.setColor(Color.BLACK);
-						break;
-				}
-
+				g.setColor(grid[y][x] ? Color.WHITE : Color.BLACK);
 				g.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
 			}
 		}

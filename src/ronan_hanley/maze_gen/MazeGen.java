@@ -10,11 +10,8 @@ import javax.swing.JFrame;
 
 public class MazeGen {
 	private int width, height;
-	public int x, y;
 	private int sleepTime;
-	public int[][] grid;
-	// 0 = Blank, 1 = WALL, 2 = START, 3 = FINISH
-	public static final int BLANK = 0, WALL = 1, START = 2, FINISH = 3;
+	public boolean[][] grid;
 	// (x, y) pairs of directional offset values
 	private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
 	private Random rand = new Random();
@@ -25,17 +22,11 @@ public class MazeGen {
 		this.height = height;
 		this.sleepTime = sleepTime;
 
-		grid = new int[height][width];
-		for(int i = 0; i < height; i++) {
-			for(int j = 0; j < width; j++) {
-				grid[i][j] = WALL;
-			}
-		}
+		grid = new boolean[height][width];
 	}
 	
 	public void go() {
 		JFrame frame = new JFrame("Maze Generator by Ronan-H");
-		grid[1][1] = FINISH;
 
 		panel = new Panel(grid);
 		frame.getContentPane().setSize(new Dimension(panel.getWidth(), panel.getHeight()));
@@ -54,11 +45,7 @@ public class MazeGen {
 		}
 	}
 	
-	public static void main(String[] args) {
-		new MazeGen(101, 101, 5).go();
-	}
-	
-	public void genMaze(int[][] grid, int startX, int startY) throws InterruptedException {
+	public void genMaze(boolean[][] grid, int startX, int startY) throws InterruptedException {
 		Deque<int[]> stack = new ArrayDeque<>();
 		stack.push(new int[] {startX, startY, startX, startY});
 		int[] top;
@@ -74,15 +61,15 @@ public class MazeGen {
 			x = top[0];
 			y = top[1];
 
-			if (grid[y][x] == BLANK) {
+			if (grid[y][x]) {
 				// already visited
 				continue;
 			}
 
 			// carve out space on the maze
-			grid[top[3]][top[2]] = BLANK;
+			grid[top[3]][top[2]] = true;
 			updateUI();
-			grid[y][x] = BLANK;
+			grid[y][x] = true;
 			updateUI();
 
 			// indexes of directional offsets
@@ -107,7 +94,7 @@ public class MazeGen {
 				// check destination is in bounds and not yet visited
 				if (destX > 0 && destX < width
 						&& destY > 0 && destY < height
-						&& grid[destY][destX] == WALL) {
+						&& !grid[destY][destX]) {
 					// push destination cell to the stack
 					stack.push(new int[] {destX, destY, adjX, adjY});
 				}
@@ -119,5 +106,9 @@ public class MazeGen {
 		panel.repaint();
 		Thread.sleep(sleepTime);
 	}
-	
+
+	public static void main(String[] args) {
+		new MazeGen(101, 101, 5).go();
+	}
+
 }
