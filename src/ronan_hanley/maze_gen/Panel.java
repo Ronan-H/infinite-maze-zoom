@@ -9,7 +9,7 @@ public class Panel extends JPanel {
 	private Maze maze;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 7;
+	private static final int STARTING_SCALE = 10;
 	private double scale;
 	private double zoomSpeed;
 	
@@ -20,7 +20,7 @@ public class Panel extends JPanel {
 		windowHeight = maze.getHeight() * STARTING_SCALE;
 
 		scale = STARTING_SCALE;
-		zoomSpeed = 1.003;
+		zoomSpeed = 1.001;
 
 		Dimension size = new Dimension(windowWidth, windowHeight);
 		setMinimumSize(size);

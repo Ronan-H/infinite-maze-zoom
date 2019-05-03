@@ -6,14 +6,15 @@ import javax.swing.JFrame;
 
 public class MazeGen {
 	private int width, height;
-	private int sleepTime;
+	private long nsPerUpdate;
 	private Maze maze;
 	private Panel panel;
+	private long nextUpdate;
 	
-	public MazeGen(int width, int height, int sleepTime) {
+	public MazeGen(int width, int height, long nsPerUpdate) {
 		this.width = width;
 		this.height = height;
-		this.sleepTime = sleepTime;
+		this.nsPerUpdate = nsPerUpdate;
 
 		maze = new Maze(width, height, 1, 1);
 	}
@@ -27,9 +28,12 @@ public class MazeGen {
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
-		panel.repaint();
+		panel.setIgnoreRepaint(true);
 		frame.setResizable(false);
 		frame.setVisible(true);
+		panel.repaint();
+
+		nextUpdate = System.nanoTime();
 
 		try {
 			genMaze();
@@ -42,13 +46,32 @@ public class MazeGen {
 		while (true) {
 			while (!maze.generateStep() && !maze.isFinishedGenerating());
 
-			Thread.sleep(sleepTime);
-			panel.repaint();
+			repaintAndSleep();
+		}
+	}
+
+	private long lastTimer = System.currentTimeMillis();
+	private int fps = 0;
+	public void repaintAndSleep() throws InterruptedException {
+		panel.repaint();
+
+		long sleepNs = nextUpdate - System.nanoTime();
+
+		if (sleepNs > 0) {
+			Thread.sleep(nsPerUpdate / 1000000, (int) (nsPerUpdate % 1000000));
+		}
+
+		nextUpdate += nsPerUpdate;
+		fps++;
+		if (System.currentTimeMillis() > lastTimer + 1000) {
+			System.out.printf("%dfps%n", fps);
+			lastTimer += 1000;
+			fps = 0;
 		}
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(101, 101, 10).go();
+		new MazeGen(73, 73, 10 * 1000000).go();
 	}
 
 }
