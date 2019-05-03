@@ -42,6 +42,11 @@ public class Maze {
         return subMaze;
     }
 
+    public void setSubMaze(Maze subMaze) {
+        this.subMaze = subMaze;
+    }
+
+
     public boolean isPathAt(int x, int y) {
         return grid[y][x];
     }
@@ -112,6 +117,6 @@ public class Maze {
     }
 
     public boolean isFinishedGenerating() {
-        return genStack.isEmpty();
+        return genStack.isEmpty() && (subMaze == null || subMaze.isFinishedGenerating());
     }
 }
