@@ -1,31 +1,45 @@
 package ronan_hanley.maze_gen;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 
 public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 10;
+	private static final int STARTING_SCALE = 11;
 	private double topScale;
 	private double zoomSpeed;
 
 	private long nsPerUpdate;
 	private Maze topMaze;
 	private long nextUpdate;
+	private boolean saveFrames;
+	private long frameCounter;
+	private static final String FRAMES_DIR = "./frames/";
+	private BufferedImage nextFrame;
 	
-	public MazeGen(int width, int height, long nsPerUpdate) {
+	public MazeGen(int width, int height, long nsPerUpdate, boolean saveFrames) {
 		this.nsPerUpdate = nsPerUpdate;
+		this.saveFrames = saveFrames;
+
+		if (saveFrames) {
+			new File(FRAMES_DIR).mkdirs();
+		}
 
 		windowWidth = width * STARTING_SCALE;
 		windowHeight = height * STARTING_SCALE;
 
 		topScale = STARTING_SCALE;
-		zoomSpeed = 1.05;
+		zoomSpeed = 1.035;
 
-		topMaze = new Maze(width, height, 1, 1, 2);
+		topMaze = new Maze(width, height, 1, 1, 4);
+		frameCounter = 0;
 	}
 	
 	public void go() {
@@ -57,7 +71,7 @@ public class MazeGen extends JPanel {
 
 	public void genMazes() throws InterruptedException {
 		while (true) {
-			for (int i = 0; i < 30; i++) {
+			for (int i = 0; i < 20; i++) {
 				topMaze.generateStep();
 				if (topMaze.isFinishedGenerating()) {
 					break;
@@ -72,6 +86,7 @@ public class MazeGen extends JPanel {
 	private long lastTimer = System.currentTimeMillis();
 	private int fps = 0;
 	public void repaintAndSleep() throws InterruptedException {
+		nextFrame = drawFrame();
 		paintImmediately(0, 0, windowWidth, windowHeight);
 
 		long sleepNs = nextUpdate - System.nanoTime();
@@ -87,10 +102,13 @@ public class MazeGen extends JPanel {
 			lastTimer += 1000;
 			fps = 0;
 		}
+
+		frameCounter++;
 	}
 
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
+	private BufferedImage drawFrame() {
+		BufferedImage frame = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics g = frame.getGraphics();
 
 		g.setColor(Color.BLACK);
 		g.fillRect(0, 0, windowWidth, windowHeight);
@@ -117,6 +135,26 @@ public class MazeGen extends JPanel {
 		}
 
 		topScale *= zoomSpeed;
+
+		g.dispose();
+
+		if (saveFrames) {
+			String imageSavePath = FRAMES_DIR + frameCounter + ".png";
+			try {
+				ImageIO.write(frame, "PNG", new File(imageSavePath));
+			}
+			catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
+		return frame;
+	}
+
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+
+		g.drawImage(nextFrame, 0, 0, windowWidth, windowHeight, null);
 	}
 
 	public void pruneMazes() {
@@ -130,11 +168,11 @@ public class MazeGen extends JPanel {
 				nextMaze = nextMaze.getSubMaze();
 			}
 
-			nextMaze.setSubMaze(new Maze(topMaze.getWidth(), topMaze.getHeight(), 1, 1, 0));
+			nextMaze.setSubMaze(new Maze(topMaze.getWidth(), topMaze.getHeight(), 21, 21, 0));
 		}
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(73, 73, 50 * 1000000).go();
+		new MazeGen(73, 73, 16 * 1000000, false).go();
 	}
 }
