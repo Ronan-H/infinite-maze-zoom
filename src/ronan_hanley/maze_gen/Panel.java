@@ -7,17 +7,14 @@ import javax.swing.JPanel;
 
 public class Panel extends JPanel {
 	private static final long serialVersionUID = 1L;
-	private boolean[][] grid;
+	private Maze maze;
 	private static final int SCALE = 7;
 	
-	public Panel(boolean[][] grid) {
-		this.grid = grid;
+	public Panel(Maze maze) {
+		this.maze = maze;
 
-		int gridWidth = grid[0].length;
-		int gridHeight = grid.length;
-
-		int windowWidth = gridWidth * SCALE;
-		int windowHeight = gridHeight * SCALE;
+		int windowWidth = maze.getWidth() * SCALE;
+		int windowHeight = maze.getHeight() * SCALE;
 
 		Dimension size = new Dimension(windowWidth, windowHeight);
 		setMinimumSize(size);
@@ -28,9 +25,9 @@ public class Panel extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		for(int y = 0; y < grid.length; y++) {
-			for(int x = 0; x < grid[y].length; x++) {
-				g.setColor(grid[y][x] ? Color.WHITE : Color.BLACK);
+		for(int y = 0; y < maze.getHeight(); y++) {
+			for(int x = 0; x < maze.getWidth(); x++) {
+				g.setColor(maze.isPathAt(x, y) ? Color.WHITE : Color.BLACK);
 				g.fillRect(x * SCALE, y * SCALE, SCALE, SCALE);
 			}
 		}
