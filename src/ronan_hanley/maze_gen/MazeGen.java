@@ -40,8 +40,11 @@ public class MazeGen {
 
 	public void genMaze() throws InterruptedException {
 		while (!maze.isFinishedGenerating()) {
-			maze.generateStep();
-			updateAndPause();
+			boolean madeVisualProgress = maze.generateStep();
+
+			if (madeVisualProgress) {
+				updateAndPause();
+			}
 		}
 	}
 
@@ -51,7 +54,7 @@ public class MazeGen {
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(101, 101, 5).go();
+		new MazeGen(101, 101, 10).go();
 	}
 
 }

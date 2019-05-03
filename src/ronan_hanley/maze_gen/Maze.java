@@ -37,9 +37,12 @@ public class Maze {
         return grid[y][x];
     }
 
-    public void generateStep() {
+    /**
+     * @return True if more of the maze was carved out (sometimes it only backtracks in a single step)
+     */
+    public boolean generateStep() {
         if (genStack.isEmpty()) {
-            return;
+            return false;
         }
 
         int[] top;
@@ -55,7 +58,7 @@ public class Maze {
 
         if (isPathAt(x, y)) {
             // already visited
-            return;
+            return false;
         }
 
         // carve out space on the maze
@@ -89,6 +92,8 @@ public class Maze {
                 genStack.push(new int[] {destX, destY, adjX, adjY});
             }
         }
+
+        return true;
     }
 
     public boolean isFinishedGenerating() {
