@@ -12,7 +12,7 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 11;
+	private static final int STARTING_SCALE = 7;
 	private double topScale;
 	private double zoomSpeed;
 
@@ -36,7 +36,7 @@ public class MazeGen extends JPanel {
 		windowHeight = height * STARTING_SCALE;
 
 		topScale = STARTING_SCALE;
-		zoomSpeed = 1.035;
+		zoomSpeed = 1.045;
 
 		topMaze = new Maze(width, height, 1, 1, 4);
 		frameCounter = 0;
@@ -173,6 +173,6 @@ public class MazeGen extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(73, 73, 16 * 1000000, false).go();
+		new MazeGen(101, 101, 32 * 1000000, false).go();
 	}
 }
