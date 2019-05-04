@@ -1,9 +1,8 @@
 # Maze Generator
 
-Generates a topMaze using depth first search.
+Generates an infinitely zooming maze using depth first search.
 
-![GIF of topMaze generator](topMaze-gen.gif)
+![GIF of topMaze generator](maze-zoom.gif)
 
-The topMaze is generated "live", step-by-step inside a JFrame.
-
-*Project started October 2014.*
+## Original project (2014)
+![GIF of topMaze generator](maze-gen.gif)
