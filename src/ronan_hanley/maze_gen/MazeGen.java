@@ -115,7 +115,7 @@ public class MazeGen extends JPanel {
 
 		Maze nextMaze = topMaze;
 		double scale = topScale;
-		while (nextMaze != null) {
+		for (int i = 0; i < 3 && nextMaze != null; i++) {
 			int cellSize = (int) Math.ceil(scale);
 
 			double drawStart = (windowWidth / 2d) - (scale * (nextMaze.getWidth() / 2d));
