@@ -11,7 +11,7 @@ public class Maze {
 
     private int width;
     private int height;
-    private boolean[][] grid;
+    private boolean[] grid;
     private Deque<int[]> genStack = new ArrayDeque<>();
     private Random random;
     private Maze subMaze;
@@ -20,7 +20,7 @@ public class Maze {
         this.width = width;
         this.height = height;
 
-        grid = new boolean[height][width];
+        grid = new boolean[height * width];
 
         genStack.push(new int[] {genStartX, genStartY, genStartX, genStartY});
         random = new Random();
@@ -48,7 +48,7 @@ public class Maze {
 
 
     public boolean isPathAt(int x, int y) {
-        return grid[y][x];
+        return grid[y * height + x];
     }
 
     /**
@@ -82,8 +82,8 @@ public class Maze {
         }
 
         // carve out space on the maze
-        grid[top[3]][top[2]] = true;
-        grid[y][x] = true;
+        grid[top[3] * height + top[2]] = true;
+        grid[y * height + x] = true;
 
         // indexes of directional offsets
         ArrayList<Integer> dirs = new ArrayList<>();
@@ -107,7 +107,7 @@ public class Maze {
             // check destination is in bounds and not yet visited
             if (destX > 0 && destX < width
                     && destY > 0 && destY < height
-                    && !grid[destY][destX]) {
+                    && !grid[destY * height + destX]) {
                 // push destination cell to the stack
                 genStack.push(new int[] {destX, destY, adjX, adjY});
             }
