@@ -12,10 +12,7 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private int canvasWidth;
-	private int canvasHeight;
-	private static final double UPSCALE_FACTOR = 2;
-	private static final int STARTING_SCALE = 17 ;
+	private static final int STARTING_SCALE = 17;
 	private double topScale;
 	private double zoomSpeed;
 	private double zoomAccel;
@@ -40,10 +37,7 @@ public class MazeGen extends JPanel {
 		windowWidth = width * STARTING_SCALE;
 		windowHeight = height * STARTING_SCALE;
 
-		canvasWidth = (int) Math.round(windowWidth * UPSCALE_FACTOR);
-		canvasHeight = (int) Math.round(windowHeight * UPSCALE_FACTOR);
-
-		topScale = STARTING_SCALE;
+		topScale = windowWidth;
 		zoomSpeed = 1.02;
 		zoomAccel = 0.000005;
 		zoomSpeedLimit = 1.08;
@@ -52,7 +46,7 @@ public class MazeGen extends JPanel {
 		frameCounter = 0;
 	}
 	
-	public void go() {
+	private void go() {
 		Dimension size = new Dimension(windowWidth, windowHeight);
 		setMinimumSize(size);
 		setMaximumSize(size);
@@ -79,7 +73,7 @@ public class MazeGen extends JPanel {
 		}
 	}
 
-	public void genMazes() throws InterruptedException {
+	private void genMazes() throws InterruptedException {
 		while (true) {
 			for (int i = 0; i < 20; i++) {
 				topMaze.generateStep();
@@ -88,19 +82,19 @@ public class MazeGen extends JPanel {
 				}
 			}
 
-			pruneMazes();
-			repaintAndSleep();
-
 			zoomSpeed += zoomAccel;
 			if (zoomSpeed > zoomSpeedLimit) {
 				zoomSpeed = zoomSpeedLimit;
 			}
+
+			pruneMazes();
+			repaintAndSleep();
 		}
 	}
 
 	private long lastTimer = System.currentTimeMillis();
 	private int fps = 0;
-	public void repaintAndSleep() throws InterruptedException {
+	private void repaintAndSleep() throws InterruptedException {
 		nextFrame = drawFrame();
 		paintImmediately(0, 0, windowWidth, windowHeight);
 
@@ -122,25 +116,21 @@ public class MazeGen extends JPanel {
 	}
 
 	private BufferedImage drawFrame() {
-		BufferedImage canvas = new BufferedImage(canvasWidth, canvasHeight, BufferedImage.TYPE_INT_RGB);
-		Graphics g = canvas.getGraphics();
+		BufferedImage frame = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
+		Graphics2D g = (Graphics2D) frame.getGraphics();
+		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Maze nextMaze = topMaze;
 		double scale = topScale;
 		for (int i = 0; i < 3 && nextMaze != null; i++) {
-			int cellSize = (int) Math.ceil(scale);
+			double drawStart = Math.round((windowWidth / 2d) - (scale / 2d));
 
-			double drawStart = (canvasWidth / 2d) - (scale * (nextMaze.getWidth() / 2d));
+			int drawStartInt = (int) drawStart;
+			int scaleInt = (int) scale;
 
-			g.setColor(Color.WHITE);
-			for (int y = 0; y < nextMaze.getHeight(); y++) {
-				for (int x = 0; x < nextMaze.getWidth(); x++) {
-					if (nextMaze.isPathAt(x, y)) {
-						g.fillRect((int) Math.floor(drawStart + x * scale),
-								(int) Math.floor(drawStart + y * scale), cellSize, cellSize);
-					}
-				}
-			}
+			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
 
 			nextMaze = nextMaze.getSubMaze();
 			scale /= topMaze.getWidth();
@@ -149,15 +139,6 @@ public class MazeGen extends JPanel {
 		topScale *= zoomSpeed;
 
 		g.dispose();
-
-		BufferedImage frame = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
-
-		Graphics2D fg = (Graphics2D) frame.getGraphics();
-		fg.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		fg.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
-		fg.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
-
-		fg.drawImage(canvas, 0, 0, windowWidth, windowHeight, null);
 
 		if (saveFrames) {
 			String imageSavePath = FRAMES_DIR + frameCounter + ".png";
@@ -178,8 +159,8 @@ public class MazeGen extends JPanel {
 		g.drawImage(nextFrame, 0, 0, windowWidth, windowHeight, null);
 	}
 
-	public void pruneMazes() {
-		if (topScale > canvasWidth) {
+	private void pruneMazes() {
+		while (topScale > windowWidth * topMaze.getWidth()) {
 			topMaze = topMaze.getSubMaze();
 			topScale /= topMaze.getWidth();
 
@@ -194,6 +175,6 @@ public class MazeGen extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(53, 53, 15 * 1000000, false).go();
+		new MazeGen(53, 53, 16 * 1000000, false).go();
 	}
 }

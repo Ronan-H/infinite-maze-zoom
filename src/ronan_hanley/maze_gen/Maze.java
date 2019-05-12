@@ -1,5 +1,6 @@
 package ronan_hanley.maze_gen;
 
+import java.awt.image.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -8,10 +9,12 @@ import java.util.Random;
 public class Maze {
     // (x, y) pairs of directional offset values
     private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
+    private static final byte WALL = 0x000000, PATH = (byte) 0xFFFFFF;
 
     private int width;
     private int height;
-    private boolean[] grid;
+    private int[] grid;
+    private BufferedImage gridImage;
     private Deque<int[]> genStack = new ArrayDeque<>();
     private Random random;
     private Maze subMaze;
@@ -20,7 +23,8 @@ public class Maze {
         this.width = width;
         this.height = height;
 
-        grid = new boolean[height * width];
+        gridImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        grid = ((DataBufferInt) gridImage.getRaster().getDataBuffer()).getData();
 
         genStack.push(new int[] {genStartX, genStartY, genStartX, genStartY});
         random = new Random();
@@ -48,7 +52,7 @@ public class Maze {
 
 
     public boolean isPathAt(int x, int y) {
-        return grid[y * height + x];
+        return grid[y * height + x] == PATH;
     }
 
     /**
@@ -82,8 +86,8 @@ public class Maze {
         }
 
         // carve out space on the maze
-        grid[top[3] * height + top[2]] = true;
-        grid[y * height + x] = true;
+        grid[top[3] * height + top[2]] = PATH;
+        grid[y * height + x] = PATH;
 
         // indexes of directional offsets
         ArrayList<Integer> dirs = new ArrayList<>();
@@ -107,7 +111,7 @@ public class Maze {
             // check destination is in bounds and not yet visited
             if (destX > 0 && destX < width
                     && destY > 0 && destY < height
-                    && !grid[destY * height + destX]) {
+                    && grid[destY * height + destX] == WALL) {
                 // push destination cell to the stack
                 genStack.push(new int[] {destX, destY, adjX, adjY});
             }
@@ -118,5 +122,9 @@ public class Maze {
 
     public boolean isFinishedGenerating() {
         return genStack.isEmpty() && (subMaze == null || subMaze.isFinishedGenerating());
+    }
+
+    public BufferedImage getGridImage() {
+        return gridImage;
     }
 }
