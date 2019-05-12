@@ -52,7 +52,7 @@ public class MazeGen extends JPanel {
 		frameCounter = 0;
 	}
 	
-	public void go() {
+	private void go() {
 		Dimension size = new Dimension(windowWidth, windowHeight);
 		setMinimumSize(size);
 		setMaximumSize(size);
@@ -79,7 +79,7 @@ public class MazeGen extends JPanel {
 		}
 	}
 
-	public void genMazes() throws InterruptedException {
+	private void genMazes() throws InterruptedException {
 		while (true) {
 			for (int i = 0; i < 20; i++) {
 				topMaze.generateStep();
@@ -88,19 +88,19 @@ public class MazeGen extends JPanel {
 				}
 			}
 
-			pruneMazes();
-			repaintAndSleep();
-
 			zoomSpeed += zoomAccel;
 			if (zoomSpeed > zoomSpeedLimit) {
 				zoomSpeed = zoomSpeedLimit;
 			}
+
+			pruneMazes();
+			repaintAndSleep();
 		}
 	}
 
 	private long lastTimer = System.currentTimeMillis();
 	private int fps = 0;
-	public void repaintAndSleep() throws InterruptedException {
+	private void repaintAndSleep() throws InterruptedException {
 		nextFrame = drawFrame();
 		paintImmediately(0, 0, windowWidth, windowHeight);
 
@@ -178,7 +178,7 @@ public class MazeGen extends JPanel {
 		g.drawImage(nextFrame, 0, 0, windowWidth, windowHeight, null);
 	}
 
-	public void pruneMazes() {
+	private void pruneMazes() {
 		if (topScale > canvasWidth) {
 			topMaze = topMaze.getSubMaze();
 			topScale /= topMaze.getWidth();
@@ -194,6 +194,6 @@ public class MazeGen extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(53, 53, 15 * 1000000, false).go();
+		new MazeGen(53, 53, 16 * 1000000, false).go();
 	}
 }
