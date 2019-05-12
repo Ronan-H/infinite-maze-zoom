@@ -1,9 +1,6 @@
 package ronan_hanley.maze_gen;
 
-import java.awt.image.BufferedImage;
-import java.awt.image.DataBufferByte;
-import java.awt.image.IndexColorModel;
-import java.awt.image.WritableRaster;
+import java.awt.image.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Deque;
@@ -12,13 +9,11 @@ import java.util.Random;
 public class Maze {
     // (x, y) pairs of directional offset values
     private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    private static final byte WALL = 0, PATH = (byte) 255;
-    private static final byte[] COLOR_MAP = {WALL, PATH};
-    private static final IndexColorModel COLOR_MODEL = new IndexColorModel(1, 2, COLOR_MAP, COLOR_MAP, COLOR_MAP);
+    private static final byte WALL = 0x000000, PATH = (byte) 0xFFFFFF;
 
     private int width;
     private int height;
-    private byte[] grid;
+    private int[] grid;
     private BufferedImage gridImage;
     private Deque<int[]> genStack = new ArrayDeque<>();
     private Random random;
@@ -28,8 +23,8 @@ public class Maze {
         this.width = width;
         this.height = height;
 
-        gridImage = new BufferedImage(width, height, BufferedImage.TYPE_BYTE_BINARY);
-        grid = ((DataBufferByte) gridImage.getRaster().getDataBuffer()).getData();
+        gridImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
+        grid = ((DataBufferInt) gridImage.getRaster().getDataBuffer()).getData();
 
         genStack.push(new int[] {genStartX, genStartY, genStartX, genStartY});
         random = new Random();
@@ -116,7 +111,7 @@ public class Maze {
             // check destination is in bounds and not yet visited
             if (destX > 0 && destX < width
                     && destY > 0 && destY < height
-                    && grid[destY * height + destX] == PATH) {
+                    && grid[destY * height + destX] == WALL) {
                 // push destination cell to the stack
                 genStack.push(new int[] {destX, destY, adjX, adjY});
             }
