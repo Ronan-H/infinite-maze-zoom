@@ -12,9 +12,6 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private int canvasWidth;
-	private int canvasHeight;
-	private static final double UPSCALE_FACTOR = 2;
 	private static final int STARTING_SCALE = 17;
 	private double topScale;
 	private double zoomSpeed;
@@ -40,10 +37,7 @@ public class MazeGen extends JPanel {
 		windowWidth = width * STARTING_SCALE;
 		windowHeight = height * STARTING_SCALE;
 
-		canvasWidth = (int) Math.round(windowWidth * UPSCALE_FACTOR);
-		canvasHeight = (int) Math.round(windowHeight * UPSCALE_FACTOR);
-
-		topScale = STARTING_SCALE * width;
+		topScale = windowWidth;
 		zoomSpeed = 1.02;
 		zoomAccel = 0.000005;
 		zoomSpeedLimit = 1.08;
@@ -125,7 +119,7 @@ public class MazeGen extends JPanel {
 		BufferedImage frame = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) frame.getGraphics();
 		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
-		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BILINEAR);
+		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 
 		Maze nextMaze = topMaze;
@@ -133,8 +127,8 @@ public class MazeGen extends JPanel {
 		for (int i = 0; i < 3 && nextMaze != null; i++) {
 			double drawStart = Math.round((windowWidth / 2d) - (scale / 2d));
 
-			int drawStartInt = (int) Math.round(drawStart);
-			int scaleInt = (int) Math.round(scale);
+			int drawStartInt = (int) drawStart;
+			int scaleInt = (int) scale;
 
 			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
 
@@ -166,7 +160,7 @@ public class MazeGen extends JPanel {
 	}
 
 	private void pruneMazes() {
-		if (topScale > canvasWidth) {
+		while (topScale > windowWidth * topMaze.getWidth()) {
 			topMaze = topMaze.getSubMaze();
 			topScale /= topMaze.getWidth();
 
