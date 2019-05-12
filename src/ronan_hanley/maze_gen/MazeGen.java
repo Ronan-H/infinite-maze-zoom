@@ -1,6 +1,7 @@
 package ronan_hanley.maze_gen;
 
 import java.awt.*;
+import java.awt.image.BufferStrategy;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -25,6 +26,7 @@ public class MazeGen extends JPanel {
 	private long frameCounter;
 	private static final String FRAMES_DIR = "./frames/";
 	private BufferedImage nextFrame;
+	private BufferStrategy bs;
 	
 	public MazeGen(int width, int height, long nsPerUpdate, boolean saveFrames) {
 		this.nsPerUpdate = nsPerUpdate;
@@ -42,7 +44,7 @@ public class MazeGen extends JPanel {
 		zoomAccel = 0.000005;
 		zoomSpeedLimit = 1.08;
 
-		topMaze = new Maze(width, height, 1, 1, 4);
+		topMaze = new Maze(width, height, 1, 1, 10);
 		frameCounter = 0;
 	}
 	
@@ -54,15 +56,19 @@ public class MazeGen extends JPanel {
 
 		JFrame frame = new JFrame("Infinite Maze Zoom by Ronan-H");
 
-		frame.getContentPane().setSize(new Dimension(getWidth(), getHeight()));
-		frame.add(this);
+		frame.getContentPane().setSize(size);
+		frame.setLayout(new BorderLayout());
+		frame.add(this, BorderLayout.CENTER);
 		frame.pack();
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setLocationRelativeTo(null);
 		setIgnoreRepaint(true);
-		frame.setResizable(false);
+		frame.setResizable(true);
+
+		frame.createBufferStrategy(2);
+		bs = frame.getBufferStrategy();
+
 		frame.setVisible(true);
-		repaint();
 
 		nextUpdate = System.nanoTime();
 
@@ -96,7 +102,7 @@ public class MazeGen extends JPanel {
 	private int fps = 0;
 	private void repaintAndSleep() throws InterruptedException {
 		nextFrame = drawFrame();
-		paintImmediately(0, 0, windowWidth, windowHeight);
+		render();
 
 		long sleepNs = nextUpdate - System.nanoTime();
 
@@ -163,10 +169,20 @@ public class MazeGen extends JPanel {
 		return frame;
 	}
 
-	public void paintComponent(Graphics g) {
-		super.paintComponent(g);
+	public void render() {
+		Graphics2D g2 = null;
 
-		g.drawImage(nextFrame, 0, 0, null);
+		do {
+			try {
+				g2 = (Graphics2D) bs.getDrawGraphics();
+				g2.drawImage(nextFrame, 0, 0, null);
+			}
+			finally {
+				g2.dispose();
+			}
+		} while (bs.contentsLost());
+
+		bs.show();
 	}
 
 	private void pruneMazes() {
