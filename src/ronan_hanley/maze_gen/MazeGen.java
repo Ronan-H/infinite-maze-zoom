@@ -12,7 +12,7 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 17;
+	private static final int STARTING_SCALE = 8;
 	private double topScale;
 	private double zoomSpeed;
 	private double zoomAccel;
@@ -52,7 +52,7 @@ public class MazeGen extends JPanel {
 		setMaximumSize(size);
 		setPreferredSize(size);
 
-		JFrame frame = new JFrame("Maze Generator by Ronan-H");
+		JFrame frame = new JFrame("Infinite Maze Zoom by Ronan-H");
 
 		frame.getContentPane().setSize(new Dimension(getWidth(), getHeight()));
 		frame.add(this);
@@ -75,7 +75,7 @@ public class MazeGen extends JPanel {
 
 	private void genMazes() throws InterruptedException {
 		while (true) {
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < 50; i++) {
 				topMaze.generateStep();
 				if (topMaze.isFinishedGenerating()) {
 					break;
@@ -118,17 +118,27 @@ public class MazeGen extends JPanel {
 	private BufferedImage drawFrame() {
 		BufferedImage frame = new BufferedImage(windowWidth, windowHeight, BufferedImage.TYPE_INT_RGB);
 		Graphics2D g = (Graphics2D) frame.getGraphics();
-		g.setRenderingHint(RenderingHints.KEY_RENDERING, RenderingHints.VALUE_RENDER_QUALITY);
+
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+		g.setClip(new Rectangle(0, 0, windowWidth, windowHeight));
 
 		Maze nextMaze = topMaze;
 		double scale = topScale;
 		for (int i = 0; i < 3 && nextMaze != null; i++) {
 			double drawStart = Math.round((windowWidth / 2d) - (scale / 2d));
 
-			int drawStartInt = (int) drawStart;
-			int scaleInt = (int) scale;
+			int drawStartInt, scaleInt;
+
+			if (i == 0) {
+				drawStartInt = (int) drawStart;
+				scaleInt = (int) scale;
+			}
+			else {
+				drawStartInt = (int) Math.ceil(drawStart);
+				scaleInt = (int) Math.ceil(scale);
+			}
 
 			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
 
@@ -156,7 +166,7 @@ public class MazeGen extends JPanel {
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 
-		g.drawImage(nextFrame, 0, 0, windowWidth, windowHeight, null);
+		g.drawImage(nextFrame, 0, 0, null);
 	}
 
 	private void pruneMazes() {
@@ -175,6 +185,6 @@ public class MazeGen extends JPanel {
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(53, 53, 16 * 1000000, false).go();
+		new MazeGen(93, 93, 15 * 1000000, false).go();
 	}
 }
