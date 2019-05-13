@@ -13,7 +13,7 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 8;
+	private static final int STARTING_SCALE = 27;
 	private double topScale;
 	private double zoomSpeed;
 	private double zoomAccel;
@@ -44,7 +44,7 @@ public class MazeGen extends JPanel {
 		zoomAccel = 0.000005;
 		zoomSpeedLimit = 1.08;
 
-		topMaze = new Maze(width, height, 1, 1, 10);
+		topMaze = new Maze(width, height, width / 2, height / 2, 2);
 		frameCounter = 0;
 	}
 	
@@ -81,7 +81,7 @@ public class MazeGen extends JPanel {
 
 	private void genMazes() throws InterruptedException {
 		while (true) {
-			for (int i = 0; i < 50; i++) {
+			for (int i = 0; i < 1; i++) {
 				topMaze.generateStep();
 				if (topMaze.isFinishedGenerating()) {
 					break;
@@ -142,8 +142,8 @@ public class MazeGen extends JPanel {
 				scaleInt = (int) scale;
 			}
 			else {
-				drawStartInt = (int) Math.ceil(drawStart);
-				scaleInt = (int) Math.ceil(scale);
+				drawStartInt = (int) Math.ceil(drawStart) - 1;
+				scaleInt = (int) Math.ceil(scale) + 1;
 			}
 
 			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
@@ -196,11 +196,12 @@ public class MazeGen extends JPanel {
 				nextMaze = nextMaze.getSubMaze();
 			}
 
-			nextMaze.setSubMaze(new Maze(topMaze.getWidth(), topMaze.getHeight(), 21, 21, 0));
+			nextMaze.setSubMaze(new Maze(topMaze.getWidth(), topMaze.getHeight(), topMaze.getWidth() / 2, topMaze.getHeight() / 2, 0));
 		}
 	}
 
 	public static void main(String[] args) {
-		new MazeGen(93, 93, 15 * 1000000, false).go();
+		int mazeSize = 27;
+		new MazeGen(mazeSize, mazeSize, 14 * 1000000, false).go();
 	}
 }
