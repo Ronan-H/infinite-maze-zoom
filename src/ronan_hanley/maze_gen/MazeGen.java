@@ -13,13 +13,14 @@ public class MazeGen extends JPanel {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
-	private static final int STARTING_SCALE = 27;
+	private static final int STARTING_SCALE = 4;
 	private double topScale;
 	private double zoomSpeed;
 	private double zoomAccel;
 	private double zoomSpeedLimit;
 
 	private long nsPerUpdate;
+	private long updates;
 	private Maze topMaze;
 	private long nextUpdate;
 	private boolean saveFrames;
@@ -40,11 +41,11 @@ public class MazeGen extends JPanel {
 		windowHeight = height * STARTING_SCALE;
 
 		topScale = windowWidth;
-		zoomSpeed = 1.02;
-		zoomAccel = 0.000005;
+		zoomSpeed = 0.985;
+		zoomAccel = 0.0001;
 		zoomSpeedLimit = 1.08;
 
-		topMaze = new Maze(width, height, width / 2, height / 2, 2);
+		topMaze = new Maze(width, height, width / 2, height / 2, 4, 0);
 		frameCounter = 0;
 	}
 	
@@ -80,8 +81,10 @@ public class MazeGen extends JPanel {
 	}
 
 	private void genMazes() throws InterruptedException {
+		updates = 0;
+
 		while (true) {
-			for (int i = 0; i < 1; i++) {
+			for (int i = 0; i < 20; i++) {
 				topMaze.generateStep();
 				if (topMaze.isFinishedGenerating()) {
 					break;
@@ -95,6 +98,8 @@ public class MazeGen extends JPanel {
 
 			pruneMazes();
 			repaintAndSleep();
+
+			updates++;
 		}
 	}
 
@@ -126,7 +131,7 @@ public class MazeGen extends JPanel {
 		Graphics2D g = (Graphics2D) frame.getGraphics();
 
 		g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_NEAREST_NEIGHBOR);
-		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_OFF);
 
 		g.setClip(new Rectangle(0, 0, windowWidth, windowHeight));
 
@@ -144,6 +149,10 @@ public class MazeGen extends JPanel {
 			else {
 				drawStartInt = (int) Math.ceil(drawStart) - 1;
 				scaleInt = (int) Math.ceil(scale) + 1;
+			}
+
+			if (i > 1) {
+				g.setRenderingHint(RenderingHints.KEY_INTERPOLATION, RenderingHints.VALUE_INTERPOLATION_BICUBIC);
 			}
 
 			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
@@ -175,7 +184,7 @@ public class MazeGen extends JPanel {
 		do {
 			try {
 				g2 = (Graphics2D) bs.getDrawGraphics();
-				g2.drawImage(nextFrame, 0, 0, null);
+				g2.drawImage(nextFrame, 0, 0, nextFrame.getWidth(), nextFrame.getHeight(),  null);
 			}
 			finally {
 				g2.dispose();
@@ -196,12 +205,18 @@ public class MazeGen extends JPanel {
 				nextMaze = nextMaze.getSubMaze();
 			}
 
-			nextMaze.setSubMaze(new Maze(topMaze.getWidth(), topMaze.getHeight(), topMaze.getWidth() / 2, topMaze.getHeight() / 2, 0));
+			nextMaze.setSubMaze(new Maze(
+					topMaze.getWidth(),
+					topMaze.getHeight(),
+					topMaze.getWidth() / 2,
+					topMaze.getHeight() / 2,
+					0,
+					nextMaze.getHue() + Maze.HUE_INC));
 		}
 	}
 
 	public static void main(String[] args) {
-		int mazeSize = 27;
+		int mazeSize = 201;
 		new MazeGen(mazeSize, mazeSize, 14 * 1000000, false).go();
 	}
 }

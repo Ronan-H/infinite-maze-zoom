@@ -1,5 +1,6 @@
 package ronan_hanley.maze_gen;
 
+import java.awt.*;
 import java.awt.image.*;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
@@ -9,7 +10,8 @@ import java.util.Random;
 public class Maze {
     // (x, y) pairs of directional offset values
     private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
-    private static final byte WALL = 0x000000, PATH = (byte) 0xFFFFFF;
+    private int wall, path;
+    public static final float HUE_INC = 0.03f;
 
     private int width;
     private int height;
@@ -17,11 +19,16 @@ public class Maze {
     private BufferedImage gridImage;
     private Deque<int[]> genStack = new ArrayDeque<>();
     private Random random;
+    private float hue;
     private Maze subMaze;
 
-    public Maze(int width, int height, int genStartX, int genStartY, int numSubMazes) {
+    public Maze(int width, int height, int genStartX, int genStartY, int numSubMazes, float hue) {
         this.width = width;
         this.height = height;
+        this.hue = hue % 1.0f;
+
+        wall = 0;
+        path = Color.HSBtoRGB(hue, 1, 1);
 
         gridImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         grid = ((DataBufferInt) gridImage.getRaster().getDataBuffer()).getData();
@@ -30,7 +37,7 @@ public class Maze {
         random = new Random();
 
         if (numSubMazes > 0) {
-            subMaze = new Maze(width, height, genStartX, genStartY, numSubMazes - 1);
+            subMaze = new Maze(width, height, genStartX, genStartY, numSubMazes - 1, hue + HUE_INC);
         }
     }
 
@@ -52,7 +59,7 @@ public class Maze {
 
 
     public boolean isPathAt(int x, int y) {
-        return grid[y * height + x] == PATH;
+        return grid[y * height + x] == path;
     }
 
     /**
@@ -86,8 +93,8 @@ public class Maze {
         }
 
         // carve out space on the maze
-        grid[top[3] * height + top[2]] = PATH;
-        grid[y * height + x] = PATH;
+        grid[top[3] * height + top[2]] = path;
+        grid[y * height + x] = path;
 
         // indexes of directional offsets
         ArrayList<Integer> dirs = new ArrayList<>();
@@ -111,7 +118,7 @@ public class Maze {
             // check destination is in bounds and not yet visited
             if (destX > 0 && destX < width
                     && destY > 0 && destY < height
-                    && grid[destY * height + destX] == WALL) {
+                    && grid[destY * height + destX] == wall) {
                 // push destination cell to the stack
                 genStack.push(new int[] {destX, destY, adjX, adjY});
             }
@@ -126,5 +133,9 @@ public class Maze {
 
     public BufferedImage getGridImage() {
         return gridImage;
+    }
+
+    public float getHue() {
+        return hue;
     }
 }
