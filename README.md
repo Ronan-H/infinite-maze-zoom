@@ -2,6 +2,9 @@
 
 Generates an infinitely zooming maze using depth first search, inside a JFrame (but can also export each frame to create GIFs/videos).
 
+![GIF of topMaze generator](hue-changing.gif)
+
+### Old rendering system
 ![GIF of topMaze generator](maze-zoom.gif)
 
 ## Original project: (2014)
