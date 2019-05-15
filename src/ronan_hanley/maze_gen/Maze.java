@@ -12,6 +12,7 @@ public class Maze {
     private static final int[][] DIR_OFFSETS = {{-1, 0}, {1, 0}, {0, -1}, {0, 1}};
     private int wall, path;
     public static final float HUE_INC = 0.03f;
+    private Color color;
 
     private int width;
     private int height;
@@ -29,6 +30,7 @@ public class Maze {
 
         wall = 0;
         path = Color.HSBtoRGB(hue, 1, 1);
+        color = new Color(path);
 
         gridImage = new BufferedImage(width, height, BufferedImage.TYPE_INT_RGB);
         grid = ((DataBufferInt) gridImage.getRaster().getDataBuffer()).getData();
@@ -137,5 +139,9 @@ public class Maze {
 
     public float getHue() {
         return hue;
+    }
+
+    public Color getColor() {
+        return color;
     }
 }

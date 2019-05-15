@@ -87,7 +87,7 @@ public class MazeGen extends Canvas {
 		updates = 0;
 
 		while (true) {
-			for (int i = 0; i < 20; i++) {
+			for (int i = 0; i < 10; i++) {
 				topMaze.generateStep();
 				if (topMaze.isFinishedGenerating()) {
 					break;
@@ -159,6 +159,9 @@ public class MazeGen extends Canvas {
 			}
 
 			g.drawImage(nextMaze.getGridImage(), drawStartInt, drawStartInt, scaleInt, scaleInt, null);
+
+			g.setColor(nextMaze.getColor());
+			g.drawRect(drawStartInt, drawStartInt, scaleInt - 1, scaleInt - 1);
 
 			nextMaze = nextMaze.getSubMaze();
 			scale /= topMaze.getWidth();
