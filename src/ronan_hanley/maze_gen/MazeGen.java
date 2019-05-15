@@ -9,7 +9,7 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 
-public class MazeGen extends JPanel {
+public class MazeGen extends Canvas {
 	private static final long serialVersionUID = 1L;
 	private int windowWidth;
 	private int windowHeight;
@@ -51,23 +51,26 @@ public class MazeGen extends JPanel {
 	
 	private void go() {
 		Dimension size = new Dimension(windowWidth, windowHeight);
+		setSize(size);
+		setPreferredSize(size);
 		setMinimumSize(size);
 		setMaximumSize(size);
-		setPreferredSize(size);
+
+		setIgnoreRepaint(true);
 
 		JFrame frame = new JFrame("Infinite Maze Zoom by Ronan-H");
 
-		frame.getContentPane().setSize(size);
-		frame.setLayout(new BorderLayout());
-		frame.add(this, BorderLayout.CENTER);
-		frame.pack();
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setLocationRelativeTo(null);
-		setIgnoreRepaint(true);
-		frame.setResizable(true);
+		JPanel panel = new JPanel(new BorderLayout());
+		panel.add(this, BorderLayout.CENTER);
 
-		frame.createBufferStrategy(2);
-		bs = frame.getBufferStrategy();
+		frame.setContentPane(panel);
+		frame.pack();
+		frame.setLocationRelativeTo(null);
+		frame.setResizable(false);
+		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+
+		createBufferStrategy(3);
+		bs = getBufferStrategy();
 
 		frame.setVisible(true);
 
@@ -178,7 +181,7 @@ public class MazeGen extends JPanel {
 		return frame;
 	}
 
-	public void render() {
+	private void render() {
 		Graphics2D g2 = null;
 
 		do {
